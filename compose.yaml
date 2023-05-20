@@ -1,0 +1,65 @@
+services:
+  dotnet-api:
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    build:
+      dockerfile: Dockerfile
+      context: .
+    # platform: linux/amd64
+    ports:
+      - 15100:80
+    depends_on:
+      loki:
+        condition: service_healthy
+  loki:
+    container_name: loki
+    image: grafana/loki:master
+    ports:
+      - 13100:3100
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: wget -q --tries=1 -O- http://localhost:3100/ready 
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:master
+    ports:
+      - "13000:3000"
+    depends_on:
+      loki:
+        condition: service_healthy
+  db:
+    ports:
+      - 15001:1433
+    volumes:
+      - ./data:/var/opt/mssql/data
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: example_123
+    # mssql server image isn't available for arm64 architecture, so we use azure-sql instead
+    image: mcr.microsoft.com/azure-sql-edge:1.0.4
+    # If you really want to use MS SQL Server, uncomment the following line
+    #image: mcr.microsoft.com/mssql/server
+    restart: always
+    # healthcheck:
+    #     test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P example_123 -Q 'SELECT 1' || exit 1"]
+    #     interval: 10s
+    #     retries: 10
+    #     start_period: 10s
+    #     timeout: 3s     
+  db2:
+    ports:
+      - 15002:1433
+    volumes:
+      - ./data2:/var/opt/mssql/data
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: example_123
+    image: mcr.microsoft.com/azure-sql-edge:1.0.4
+    restart: always
+    
+         

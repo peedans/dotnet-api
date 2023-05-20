@@ -1,0 +1,15 @@
+{ 
+   "authors": [ "Nathalin" ], 
+   "description": "Data Access Library", 
+   "version" : "1.0.1-*", 
+   "supports": {}, 
+   
+   "dependencies": { 
+      "Microsoft.EntityFrameworkCore": "6.1.0", 
+      "Microsoft.EntityFrameworkCore.Design": "6.1.0", 
+      "Microsoft.EntityFrameworkCore.SqlServer": "6.1.0"
+   }, 
+   "frameworks": { 
+      "net6.0": {} 
+   } 
+}
